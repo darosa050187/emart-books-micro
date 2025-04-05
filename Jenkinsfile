@@ -105,7 +105,8 @@ pipeline{
                             -Dsonar.projectName=emart_books_api \
                             -Dsonar.projectVersion=1.0 \
                             -Dsonar.sources=javaapi/src/ \
-                            -Dsonar.java.binaries=. '''
+                            -Dsonar.java.binaries=.  '''
+                            
                             }
                         }
                     }
