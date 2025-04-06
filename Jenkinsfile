@@ -17,7 +17,7 @@ pipeline{
     environment{
         REQUIRED_TOOLS = "docker, aws, java"
         BRANCH_NAME = "feature-login-start"
-        PROJECT_NAME = "emart-app-landing"
+        PROJECT_NAME = "emart-books-micro"
         PROJECT_FOLDER = "javaapi"
         GIT_REPO_URL = "https://github.com/darosa050187/emart-books-micro.git"
     }
@@ -88,7 +88,7 @@ pipeline{
                 // }
                 stage("Build and compile") {
                     steps {
-                        dir("${env.WORKSPACE}/tmp/${env.PROJECT_FOLDER}") {
+                        dir("${env.WORKSPACE}/tmp/${env.PROJECT_NAME}") {
                             sh 'mvn install -DskipTests'
                         }
                     }
@@ -98,27 +98,27 @@ pipeline{
                         scannerHome = tool 'sonar6.2'
                     }
                     steps {
-                        dir("${env.WORKSPACE}/tmp/${env.PROJECT_FOLDER}") {
+                        dir("${env.WORKSPACE}/tmp/${env.PROJECT_NAME}") {
                             withSonarQubeEnv('Jenkins2Sonar') {
                             sh '''${scannerHome}/bin/sonar-scanner \
                             -Dsonar.projectKey=emart_books_api \
                             -Dsonar.projectName=emart_books_api \
                             -Dsonar.projectVersion=1.0 \
-                            -Dsonar.sources=javaapi/src/ \
+                            -Dsonar.sources=. \
                             -Dsonar.java.binaries=.  '''
 
                             }
                         }
                     }
                 }
-                stage("Quality Gate") {
-                    steps {
-                        timeout(time: 1, unit: 'HOURS') {
-                            waitForQualityGate abortPipeline: true
-                        }
-                    }
-                }
             }
+        }
+        stage("Quality Gate") {
+          steps {
+            timeout(time: 1, unit: 'HOURS') {
+                            waitForQualityGate abortPipeline: true
+            }
+          }
         }
         // stage('Build docker image') {
         //     steps {
@@ -127,8 +127,8 @@ pipeline{
         // }
         stage('Clean up process') {
             steps {
-                dir("${env.WORKSPACE}/tmp/${env.PROJECT_NAME}") {
-                            sh "rm -rf ${env.PROJECT_NAME}"
+                dir("${env.WORKSPACE}") {
+                            sh "rm -rf *"
                         }
             }
         }
