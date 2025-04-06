@@ -30,7 +30,7 @@ pipeline{
         ECR_REGISTRY_NAME = "emart-book-repository"
         // ** Docker variables
         IMAGE_TAG = "${env.BUILD_NUMBER}"
-        IMAGE_NAME = "emart-books-micro"
+        IMAGE_NAME = "emart-book-repository"
         IMAGE_VERSION = "latest"
     }
     stages{
