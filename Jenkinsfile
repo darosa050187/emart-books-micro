@@ -161,6 +161,20 @@ pipeline{
                 }
             }
         }
+        stage('Clean up images from local host') {
+            steps {
+                script {
+                    try {
+                        sh '''
+                            docker images | grep ${IMAGE_NAME} | awk '{print $3}' | xargs -r docker rmi -f
+                            docker system prune -f
+                        '''
+                    } catch (Exception e) {
+                        echo "Warning: Failed to clean up Docker images: ${e.message}"
+                    }
+                }
+            }
+        }
     }
     post{
         always{
