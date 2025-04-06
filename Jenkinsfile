@@ -1,4 +1,4 @@
-def notifySlack(String buildStatus) {
+def notifySlack(String buildStatus, String slackChannel = "#emartapp-java-micro-team") {
     def colorCode = buildStatus == 'SUCCESS' ? '#36a64f' : '#ff0000'
     def summary = "*Job:* ${env.JOB_NAME} #${env.BUILD_NUMBER}\n" +
                  "*Status:* ${buildStatus}\n" +
@@ -6,7 +6,7 @@ def notifySlack(String buildStatus) {
                  "*Details:* ${env.BUILD_URL}"
 
     slackSend(
-        channel: env.SLACK_CHANNEL,
+        channel: slackChannel,
         color: colorCode,
         message: summary,
         tokenCredentialId: env.SLACK_CREDENTIALS_ID
@@ -30,7 +30,7 @@ pipeline{
         ECR_REGISTRY_NAME = "emart-book-repository"
         // ** Docker variables
         IMAGE_TAG = "${env.BUILD_NUMBER}"
-        IMAGE_NAME = "emart-books"
+        IMAGE_NAME = "emart-books-micro"
         IMAGE_VERSION = "latest"
     }
     stages{
