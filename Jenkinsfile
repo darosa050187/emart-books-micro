@@ -18,7 +18,7 @@ pipeline{
         REQUIRED_TOOLS = "docker, aws, java"
         BRANCH_NAME = "feature-login-start"
         PROJECT_NAME = "emart-books-micro"
-        PROJECT_FOLDER = "javaapi"
+        ARTIFACT_NAME = "book-work-0.0.1-SNAPSHOT.jar"
         GIT_REPO_URL = "https://github.com/darosa050187/emart-books-micro.git"
     }
     stages{
@@ -122,7 +122,8 @@ pipeline{
         stage('Build docker image') {
           steps {
             script {
-              sh "docker build -t books:latest -f ${env.WORKSPACE}/tmp/${env.PROJECT_NAME}/Dockerfile "
+              sh "cp ${env.WORKSPACE}/target/${env.ARTIFACT_NAME} ${env.WORKSPACE}"
+              sh "docker build -t books:latest ."
               sh "docker tag books:latest emartapp/books:latest"
             }
           }
