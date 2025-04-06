@@ -20,6 +20,13 @@ pipeline{
         PROJECT_NAME = "emart-books-micro"
         ARTIFACT_NAME = "book-work-0.0.1-SNAPSHOT.jar"
         GIT_REPO_URL = "https://github.com/darosa050187/emart-books-micro.git"
+        AWS_REGION = "us-east-1"
+        ECR_REGISTRY_URI = "084828572941.dkr.ecr.us-east-1.amazonaws.com"
+        ECR_REGISTRY_NAME = "emart-book-repository"
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        AWS_REGISTRY_CREDENTIAL = "ecr:us-east-1:AWS"
+        IMAGE_NAME = "emart-books"
+        IMAGE_VERSION = "latest"
     }
     stages{
         stage("Validate Jenkins Environment Tools"){
@@ -129,8 +136,9 @@ pipeline{
         stage('Build docker image') {
           steps {
             script {
-              sh "docker build -t books:latest ."
-              sh "docker tag books:latest emartapp/books:latest"
+              sh "docker build -t ${IMAGE_NAME}:${IMAGE_VERSION} ."
+              sh "docker tag ${IMAGE_NAME}:${IMAGE_VERSION} ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_VERSION}"
+              sh "docker tag ${IMAGE_NAME}:${IMAGE_VERSION} ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
             }
           }
         }
@@ -139,6 +147,32 @@ pipeline{
                 dir("${env.WORKSPACE}") {
                             sh "rm -rf *"
                         }
+            }
+        }
+        stage('Push images to the ECR repository') {
+            steps {
+                docker.withRegistry (env.ECR_REGISTRY_URI, env.AWS_REGISTRY_CREDENTIAL) {
+                    try {
+                        try {
+                            withAWS(credentials: 'AWS', region: 'us-east-1') {
+                                sh "docker images -q ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
+                                sh "docker images -q ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_VERSION}"
+                            }
+                        } catch (Exception ImagenNF) {
+                            error "Image ${IMAGE_NAME} Not found locally"    
+                        }              
+                        try {
+                            withAWS(credentials: 'AWS', region: 'us-east-1') {
+                                sh "docker push ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
+                                sh "docker push ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_VERSION}"
+                            }
+                        } catch (Exception PushFail) {
+                            error "Image ${IMAGE_NAME} Push failed"    
+                        }
+                    } catch (Exception e) {
+                        error "Failed to push ${IMAGE_NAME}: ${e.message}"
+                    }
+                }
             }
         }
     }
