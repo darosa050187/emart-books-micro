@@ -72,27 +72,6 @@ pipeline{
         }
         stage("Code Test Processes") {
             parallel {
-                // stage("Unit Test") {
-                //     steps {
-                //         dir("${env.WORKSPACE}/tmp/${env.PROJECT_FOLDER}") {
-                //             sh 'mvn test'
-                //         }
-                //     }
-                // }
-                // stage("Integration Test") {
-                //     steps {
-                //         dir("${env.WORKSPACE}/tmp/${env.PROJECT_FOLDER}") {
-                //             sh 'mvn verify -e'
-                //         }
-                //     }
-                // }
-                // stage("Code Analysis With Check Style") {
-                //     steps {
-                //         dir("${env.WORKSPACE}/tmp/${env.PROJECT_FOLDER}") {
-                //             sh 'mvn checkstyle:checkstyle'
-                //         }
-                //     }
-                // }
                 stage("Build and compile") {
                     steps {
                         dir("${env.WORKSPACE}/tmp/${env.PROJECT_NAME}") {
