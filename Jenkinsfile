@@ -151,26 +151,28 @@ pipeline{
         }
         stage('Push images to the ECR repository') {
             steps {
-                docker.withRegistry (env.ECR_REGISTRY_URI, env.AWS_REGISTRY_CREDENTIAL) {
-                    try {
+                script {
+                    docker.withRegistry (env.ECR_REGISTRY_URI, env.AWS_REGISTRY_CREDENTIAL) {
                         try {
-                            withAWS(credentials: 'AWS', region: 'us-east-1') {
-                                sh "docker images -q ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
-                                sh "docker images -q ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_VERSION}"
+                            try {
+                                withAWS(credentials: 'AWS', region: 'us-east-1') {
+                                    sh "docker images -q ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
+                                    sh "docker images -q ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_VERSION}"
+                                }
+                            } catch (Exception ImagenNF) {
+                                error "Image ${IMAGE_NAME} Not found locally"    
+                            }              
+                            try {
+                                withAWS(credentials: 'AWS', region: 'us-east-1') {
+                                    sh "docker push ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
+                                    sh "docker push ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_VERSION}"
+                                }
+                            } catch (Exception PushFail) {
+                                error "Image ${IMAGE_NAME} Push failed"    
                             }
-                        } catch (Exception ImagenNF) {
-                            error "Image ${IMAGE_NAME} Not found locally"    
-                        }              
-                        try {
-                            withAWS(credentials: 'AWS', region: 'us-east-1') {
-                                sh "docker push ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
-                                sh "docker push ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_VERSION}"
-                            }
-                        } catch (Exception PushFail) {
-                            error "Image ${IMAGE_NAME} Push failed"    
+                        } catch (Exception e) {
+                            error "Failed to push ${IMAGE_NAME}: ${e.message}"
                         }
-                    } catch (Exception e) {
-                        error "Failed to push ${IMAGE_NAME}: ${e.message}"
                     }
                 }
             }
