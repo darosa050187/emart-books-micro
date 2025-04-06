@@ -15,17 +15,21 @@ def notifySlack(String buildStatus) {
 pipeline{
     agent any 
     environment{
+        // *** Project variables 
         REQUIRED_TOOLS = "docker, aws, java"
         BRANCH_NAME = "feature-login-start"
         PROJECT_NAME = "emart-books-micro"
         ARTIFACT_NAME = "book-work-0.0.1-SNAPSHOT.jar"
+        // ** Git Repositories
         GIT_REPO_URL = "https://github.com/darosa050187/emart-books-micro.git"
+        // ** AWS Variables
         AWS_REGION = "us-east-1"
+        AWS_REGISTRY_CREDENTIAL = "ecr:us-east-1:AWS"
         ECR_REGISTRY_URI = "https://084828572941.dkr.ecr.us-east-1.amazonaws.com"
         ECR_REGISTRY_REPO = "084828572941.dkr.ecr.us-east-1.amazonaws.com"
         ECR_REGISTRY_NAME = "emart-book-repository"
+        // ** Docker variables
         IMAGE_TAG = "${env.BUILD_NUMBER}"
-        AWS_REGISTRY_CREDENTIAL = "ecr:us-east-1:AWS"
         IMAGE_NAME = "emart-books"
         IMAGE_VERSION = "latest"
     }
@@ -90,8 +94,8 @@ pipeline{
             dir("${env.WORKSPACE}/tmp/${env.PROJECT_NAME}") {
               withSonarQubeEnv('Jenkins2Sonar') { 
                 sh '''${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.projectKey=emart_books_api \
-                            -Dsonar.projectName=emart_books_api \
+                            -Dsonar.projectKey=${PROJECT_NAME} \
+                            -Dsonar.projectName=${PROJECT_NAME} \
                             -Dsonar.projectVersion=1.0 \
                             -Dsonar.sources=. \
                             -Dsonar.java.binaries=.  ''' 
@@ -117,8 +121,8 @@ pipeline{
           steps {
             script {
               sh "docker build -t ${IMAGE_NAME}:${IMAGE_VERSION} ."
-              sh "docker tag ${IMAGE_NAME}:${IMAGE_VERSION} ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_VERSION}"
-              sh "docker tag ${IMAGE_NAME}:${IMAGE_VERSION} ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
+              sh "docker tag ${IMAGE_NAME}:${IMAGE_VERSION} ${ECR_REGISTRY_REPO}/${IMAGE_NAME}:${IMAGE_VERSION}"
+              sh "docker tag ${IMAGE_NAME}:${IMAGE_VERSION} ${ECR_REGISTRY_REPO}/${IMAGE_NAME}:${IMAGE_TAG}"
             }
           }
         }
