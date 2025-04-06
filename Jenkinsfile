@@ -21,7 +21,7 @@ pipeline{
         ARTIFACT_NAME = "book-work-0.0.1-SNAPSHOT.jar"
         GIT_REPO_URL = "https://github.com/darosa050187/emart-books-micro.git"
         AWS_REGION = "us-east-1"
-        ECR_REGISTRY_URI = "084828572941.dkr.ecr.us-east-1.amazonaws.com"
+        ECR_REGISTRY_URI = "https://084828572941.dkr.ecr.us-east-1.amazonaws.com"
         ECR_REGISTRY_NAME = "emart-book-repository"
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         AWS_REGISTRY_CREDENTIAL = "ecr:us-east-1:AWS"
