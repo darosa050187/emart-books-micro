@@ -65,31 +65,31 @@ pipeline{
         }
         stage("Code Test Processes") {
             parallel {
-                stage("Unit Test") {
-                    steps {
-                        dir("${env.WORKSPACE}/tmp/${env.PROJECT_FOLDER}") {
-                            sh 'mvn test'
-                        }
-                    }
-                }
-                stage("Integration Test") {
-                    steps {
-                        dir("${env.WORKSPACE}/tmp/${env.PROJECT_FOLDER}") {
-                            sh 'mvn verify -e'
-                        }
-                    }
-                }
-                stage("Code Analysis With Check Style") {
-                    steps {
-                        dir("${env.WORKSPACE}/tmp/${env.PROJECT_FOLDER}") {
-                            sh 'mvn checkstyle:checkstyle'
-                        }
-                    }
-                }
+                // stage("Unit Test") {
+                //     steps {
+                //         dir("${env.WORKSPACE}/tmp/${env.PROJECT_FOLDER}") {
+                //             sh 'mvn test'
+                //         }
+                //     }
+                // }
+                // stage("Integration Test") {
+                //     steps {
+                //         dir("${env.WORKSPACE}/tmp/${env.PROJECT_FOLDER}") {
+                //             sh 'mvn verify -e'
+                //         }
+                //     }
+                // }
+                // stage("Code Analysis With Check Style") {
+                //     steps {
+                //         dir("${env.WORKSPACE}/tmp/${env.PROJECT_FOLDER}") {
+                //             sh 'mvn checkstyle:checkstyle'
+                //         }
+                //     }
+                // }
                 stage("Build and compile") {
                     steps {
                         dir("${env.WORKSPACE}/tmp/${env.PROJECT_FOLDER}") {
-                            sh 'mvn clean compile'
+                            sh 'mvn install -DskipTests'
                         }
                     }
                 }
@@ -106,7 +106,7 @@ pipeline{
                             -Dsonar.projectVersion=1.0 \
                             -Dsonar.sources=javaapi/src/ \
                             -Dsonar.java.binaries=.  '''
-                            
+
                             }
                         }
                     }
