@@ -119,10 +119,16 @@ pipeline{
         //     }
         //   }
         // }
+        stage('Copy Artifact to workspace') {
+          steps {
+            script {
+              sh "cp ${env.WORKSPACE}/tmp/${PROJECT_NAME}/target/${env.ARTIFACT_NAME} ${env.WORKSPACE}"
+            } 
+          }
+        }
         stage('Build docker image') {
           steps {
             script {
-              sh "cp ${env.WORKSPACE}/target/${env.ARTIFACT_NAME} ${env.WORKSPACE}"
               sh "docker build -t books:latest ."
               sh "docker tag books:latest emartapp/books:latest"
             }
