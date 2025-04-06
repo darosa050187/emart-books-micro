@@ -22,6 +22,7 @@ pipeline{
         GIT_REPO_URL = "https://github.com/darosa050187/emart-books-micro.git"
         AWS_REGION = "us-east-1"
         ECR_REGISTRY_URI = "https://084828572941.dkr.ecr.us-east-1.amazonaws.com"
+        ECR_REGISTRY_REPO = "084828572941.dkr.ecr.us-east-1.amazonaws.com"
         ECR_REGISTRY_NAME = "emart-book-repository"
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         AWS_REGISTRY_CREDENTIAL = "ecr:us-east-1:AWS"
@@ -135,16 +136,16 @@ pipeline{
                         try {
                             try {
                                 withAWS(credentials: 'AWS', region: 'us-east-1') {
-                                    sh "docker images -q ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
-                                    sh "docker images -q ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_VERSION}"
+                                    sh "docker images -q ${ECR_REGISTRY_REPO}/${IMAGE_NAME}:${IMAGE_TAG}"
+                                    sh "docker images -q ${ECR_REGISTRY_REPO}/${IMAGE_NAME}:${IMAGE_VERSION}"
                                 }
                             } catch (Exception ImagenNF) {
                                 error "Image ${IMAGE_NAME} Not found locally"    
                             }              
                             try {
                                 withAWS(credentials: 'AWS', region: 'us-east-1') {
-                                    sh "docker push ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
-                                    sh "docker push ${ECR_REGISTRY_NAME}/${IMAGE_NAME}:${IMAGE_VERSION}"
+                                    sh "docker push ${ECR_REGISTRY_REPO}/${IMAGE_NAME}:${IMAGE_TAG}"
+                                    sh "docker push ${ECR_REGISTRY_REPO}/${IMAGE_NAME}:${IMAGE_VERSION}"
                                 }
                             } catch (Exception PushFail) {
                                 error "Image ${IMAGE_NAME} Push failed"    
