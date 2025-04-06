@@ -93,25 +93,24 @@ pipeline{
                         }
                     }
                 }
-                stage("Check Code With Sonar Qube") {
-                    environment {
-                        scannerHome = tool 'sonar6.2'
-                    }
-                    steps {
-                        dir("${env.WORKSPACE}/tmp/${env.PROJECT_NAME}") {
-                            withSonarQubeEnv('Jenkins2Sonar') {
-                            sh '''${scannerHome}/bin/sonar-scanner \
+            }
+        }
+        stage("Check code With SonarQube") {
+          environment {
+            scannerHome = tool 'sonar6.2'
+          }
+          steps {
+            dir("${env.WORKSPACE}/tmp/${env.PROJECT_NAME}") {
+              withSonarQubeEnv('Jenkins2Sonar') { 
+                sh '''${scannerHome}/bin/sonar-scanner \
                             -Dsonar.projectKey=emart_books_api \
                             -Dsonar.projectName=emart_books_api \
                             -Dsonar.projectVersion=1.0 \
                             -Dsonar.sources=. \
-                            -Dsonar.java.binaries=.  '''
-
-                            }
-                        }
-                    }
-                }
+                            -Dsonar.java.binaries=.  ''' 
+              }
             }
+          }
         }
         stage("Quality Gate") {
           steps {
@@ -120,11 +119,14 @@ pipeline{
             }
           }
         }
-        // stage('Build docker image') {
-        //     steps {
-
-        //     }
-        // }
+        stage('Build docker image') {
+          steps {
+            script {
+              sh "docker build -t books:latest -f ${env.WORKSPACE}/tmp/${env.PROJECT_NAME}/Dockerfile "
+              sh "docker tag books:latest emartapp/books:latest"
+            }
+          }
+        }
         stage('Clean up process') {
             steps {
                 dir("${env.WORKSPACE}") {
